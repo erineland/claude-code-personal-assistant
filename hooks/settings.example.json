@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          { "type": "command", "command": "python3 -I ~/.claude/hooks/session_start_handoff.py", "timeout": 15 }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          { "type": "command", "command": "python3 -I ~/.claude/hooks/session_end_digest.py", "timeout": 60 }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "mcp__playwright__browser_(click|type|press_key|fill_form|select_option|file_upload|evaluate|handle_dialog)",
+        "hooks": [
+          { "type": "command", "command": "python3 -I ~/.claude/hooks/browser_action_guard.py", "timeout": 10, "onFailure": "block" }
+        ]
+      }
+    ]
+  }
+}

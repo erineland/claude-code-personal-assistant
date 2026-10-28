@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A nightly unattended run of one skill, as a launchd user agent.
+
+  - Headless (`claude -p`) with its OWN settings file: a short tool allow-list, Bash denied,
+    and the append-only guard on every edit. Nothing here inherits the interactive session's
+    permissions.
+  - WorkingDirectory matters: MCP servers scoped to a project folder only load from there.
+  - Undo: launchctl bootout gui/$(id -u)/com.example.people-notes
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.example.people-notes</string>
+  <key>WorkingDirectory</key><string>/Users/YOU</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/YOU/.local/bin/claude</string>
+    <string>-p</string>
+    <string>Run the people-notes skill in unattended mode. Follow its "Unattended runs" section exactly.</string>
+    <string>--settings</string>
+    <string>/Users/YOU/.claude/skills/people-notes/scheduled/settings.json</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>21</integer><key>Minute</key><integer>0</integer></dict>
+  <key>StandardOutPath</key><string>/Users/YOU/.local/state/people-notes/run.log</string>
+  <key>StandardErrorPath</key><string>/Users/YOU/.local/state/people-notes/run.log</string>
+</dict>
+</plist>

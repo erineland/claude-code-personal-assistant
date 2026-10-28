@@ -1,0 +1,5 @@
+# Private working notes; never published
+BRIEF.md
+__pycache__/
+*.pyc
+.DS_Store

@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__messages__list_chats",
+      "mcp__messages__read_chat",
+      "Read(~/notes/People/**)",
+      "Read(~/notes/Logs/People Updates/**)",
+      "Read(~/.local/state/people-notes/state.json)",
+      "Edit(~/notes/People/*.md)",
+      "Edit(~/notes/Logs/People Updates/**)",
+      "Edit(~/.local/state/people-notes/state.json)"
+    ],
+    "deny": [
+      "Bash",
+      "WebFetch",
+      "WebSearch"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "GUARD_NOTES_DIR=~/notes/People GUARD_EXTRA_DIRS=\"$HOME/notes/Logs/People Updates:$HOME/.local/state/people-notes\" python3 -I ~/.claude/hooks/append_only_guard.py",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
