@@ -1,5 +1,7 @@
 # A personal assistant built on Claude Code
 
+[![tests](https://github.com/erineland/claude-code-personal-assistant/actions/workflows/tests.yml/badge.svg)](https://github.com/erineland/claude-code-personal-assistant/actions/workflows/tests.yml)
+
 **A case study in designing a daily-use agent system that is useful *and* safe.**
 
 I run Claude Code as a personal assistant: it briefs me each morning, keeps a diary of my day, tracks
@@ -209,7 +211,8 @@ scheduled/
   example.nightly.plist           a headless nightly run as a launchd agent
   unattended-settings.example.json  that run's own locked-down permissions
 examples/2030-01-15-diary.md      a fictional day: briefing, diary, handoff
-tests/                            unit tests for the hooks and the matcher
+tests/                            unit tests for the hooks and the matcher (run in CI on every push)
+SECURITY.md                       how to report a way around a guard
 ```
 
 **Try it:**
