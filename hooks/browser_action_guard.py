@@ -14,7 +14,7 @@ something in the world:
   - any file upload, or accepting a dialog.
 
 It returns "ask", never "deny": the human stays the decision-maker. It fails CLOSED: an
-unreadable payload is asked about too.
+unreadable payload, or an action it doesn't recognise, is asked about too.
 """
 import json
 import re
@@ -29,6 +29,10 @@ SECRET_FIELD = re.compile(r"(?i)password|passcode|card|cvc|cvv|security code|sor
 SCRIPT_RISK = re.compile(r"\.click\s*\(|\.submit\s*\(|\bPOST\b|sendBeacon|XMLHttpRequest|fetch\s*\(|"
                          r"document\.cookie|localStorage|sessionStorage|indexedDB", re.I)
 ENTER_KEYS = {"enter", "numpadenter", "return"}
+# Allowlist: actions that only read or move around. Anything not named here or handled below asks.
+READ_ONLY = {"browser_snapshot", "browser_take_screenshot", "browser_navigate", "browser_navigate_back",
+             "browser_wait_for", "browser_tabs", "browser_console_messages", "browser_network_requests",
+             "browser_hover", "browser_resize", "browser_close"}
 
 
 def verdict(tool, ti):
@@ -46,7 +50,9 @@ def verdict(tool, ti):
         if SECRET_FIELD.search(label):
             return f"typing into a sensitive field ('{label}')"
     elif action == "browser_press_key":
-        if str(ti.get("key", "")).lower() in ENTER_KEYS:
+        # Chords like Control+Enter / Meta+Enter are the send shortcut in Gmail, Slack and LinkedIn.
+        key = str(ti.get("key", "")).strip().lower().rsplit("+", 1)[-1]
+        if key in ENTER_KEYS:
             return "pressing Enter (it usually submits)"
     elif action in ("browser_fill_form", "browser_select_option"):
         if SECRET_FIELD.search(json.dumps(ti)):
@@ -59,6 +65,8 @@ def verdict(tool, ti):
     elif action == "browser_handle_dialog":
         if ti.get("accept"):
             return "accepting a browser dialog"
+    elif action not in READ_ONLY:
+        return f"an action the guard doesn't recognise ({action})"
     return None
 
 

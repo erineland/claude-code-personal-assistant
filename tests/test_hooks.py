@@ -83,6 +83,11 @@ class AppendOnlyGuardTests(unittest.TestCase):
                  "tool_input": {"file_path": os.path.join(self.notes, "Robin.md"), "content": "x"}}
         self.assertEqual(run(guard.check, event, self.notes, [self.digest])["permissionDecision"], "deny")
 
+    def test_unknown_tool_refused(self):
+        event = {"tool_name": "MultiEdit",
+                 "tool_input": {"file_path": self.path, "edits": [{"old_string": "- climbing", "new_string": ""}]}}
+        self.assertEqual(run(guard.check, event, self.notes, [self.digest])["permissionDecision"], "deny")
+
 
 class BrowserGuardTests(unittest.TestCase):
     T = "mcp__playwright__"
@@ -95,7 +100,13 @@ class BrowserGuardTests(unittest.TestCase):
         self.assertTrue(browser.verdict(self.T + "browser_click", {"element": "Place order button"}))
         self.assertTrue(browser.verdict(self.T + "browser_click", {"ref": "e12"}))
         self.assertTrue(browser.verdict(self.T + "browser_press_key", {"key": "Enter"}))
+        for chord in ("Control+Enter", "Meta+Enter", "Shift+Control+NumpadEnter"):
+            self.assertTrue(browser.verdict(self.T + "browser_press_key", {"key": chord}), chord)
+        self.assertIsNone(browser.verdict(self.T + "browser_press_key", {"key": "Control+a"}))
         self.assertTrue(browser.verdict(self.T + "browser_evaluate", {"function": "() => fetch('/x')"}))
+
+    def test_unknown_action_asks(self):
+        self.assertTrue(browser.verdict(self.T + "browser_drag", {"startElement": "a", "endElement": "b"}))
 
 
 class HandoffTests(unittest.TestCase):

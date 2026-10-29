@@ -8,7 +8,8 @@ would:
   - change anything above the log heading (the curated sections),
   - remove or alter any existing log text,
   - create a new note,
-  - touch any file outside the allowed folders.
+  - touch any file outside the allowed folders,
+  - use any tool other than Edit or Write.
 
 It fails CLOSED: if the guard itself errors, the edit is refused.
 
@@ -79,6 +80,10 @@ def deny(reason):
 
 def check(event, notes_dir, extra_dirs):
     tool, args = event.get("tool_name"), event.get("tool_input") or {}
+    # Allowlist: only Edit and Write are simulated. The "Edit|Write" matcher also catches
+    # MultiEdit and NotebookEdit, which have no old_string and would otherwise pass as a no-op.
+    if tool not in ("Edit", "Write"):
+        return deny(f"Refused: unattended runs may only use Edit or Write, not {tool}.")
     raw = str(args.get("file_path", ""))
     if ".." in pathlib.PurePath(raw).parts:
         return deny("Refused: the path contains '..'. Use the note's plain path.")
